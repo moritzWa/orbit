@@ -1,0 +1,2 @@
+exports/contact-photos/*.jpg filter=lfs diff=lfs merge=lfs -text
+crm.db filter=lfs diff=lfs merge=lfs -text

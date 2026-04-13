@@ -1,0 +1,7 @@
+.env
+exports/
+node_modules/
+*.db-journal
+*.db-wal
+*.db-shm
+crm.db.backup

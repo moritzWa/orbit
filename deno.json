@@ -1,0 +1,13 @@
+{
+  "workspace": [
+    "./server"
+  ],
+  "tasks": {
+    "dev": "bash dev.sh",
+    "dev:server": "cd server && deno task dev",
+    "dev:client": "cd client && npm run dev",
+    "sync": "cd server && deno task sync",
+    "enrich-linkedin": "cd server && deno task enrich-linkedin",
+    "import-photos": "cd server && deno task import-photos"
+  }
+}

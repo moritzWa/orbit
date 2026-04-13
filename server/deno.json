@@ -1,0 +1,25 @@
+{
+  "tasks": {
+    "run": "deno run --env --allow-all --unstable-ffi",
+    "dev": "deno task run --watch src/server.ts",
+    "start": "deno task run src/server.ts",
+    "sync": "deno task import-imessage && deno task import-whatsapp && deno task import-calls && deno task import-contacts && deno task dedup && deno task dedup-phones",
+    "import-calls": "deno task run src/import-call-history.ts",
+    "dedup-phones": "deno task run src/dedup-phones.ts",
+    "import-imessage": "deno task run src/import-imessage.ts",
+    "import-whatsapp": "deno task run src/import-whatsapp.ts",
+    "import-contacts": "deno task run src/import-contacts.ts",
+    "import-linkedin": "deno task run src/import-linkedin.ts",
+    "import-photos": "deno task run src/import-contact-photos.ts",
+    "dedup": "deno task run src/dedup-contacts.ts",
+    "enrich-linkedin": "deno task run src/enrich-linkedin.ts",
+    "test": "deno task run src/test-merge-redirect.ts",
+    "lookup": "deno task run src/lookup.ts",
+    "import-mbox": "deno task run src/import-mbox-contacts.ts"
+  },
+  "imports": {
+    "@db/sqlite": "jsr:@db/sqlite@0.12",
+    "@std/csv": "jsr:@std/csv",
+    "@std/dotenv": "jsr:@std/dotenv"
+  }
+}

@@ -1,0 +1,135 @@
+# Orbit
+
+A local-first personal relationship manager that imports your contacts from 15+ sources and helps you stay in touch. Designed to work alongside AI coding agents like [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Built with Deno + React + SQLite. Open-source personal CRM.
+
+Unlike SaaS tools (Dex, Clay, Folk) that require manual data entry or subscriptions, Orbit auto-imports from every platform you actually use, merges duplicates, and gives you a unified view of all your relationships. Unlike [Monica](https://github.com/monicahq/monica) (the main open-source alternative), Orbit is CLI-first and focuses on automated import rather than manual logging.
+
+Because all your contacts live in a single SQLite database with rich metadata (messages, LinkedIn profiles, calendar events, tags), you can use an AI agent to query across your entire network. For example: *"Who in my contacts works in philanthropy or has funding capacity for a non-profit?"* or *"When did I last talk to anyone at a16z?"* - the agent can search your CRM, look up context, and even add people to a Google Sheet for outreach.
+
+All data stays on your machine in a single SQLite file.
+
+## Features
+
+- Auto-import from 15+ sources (see table below)
+- Fuzzy duplicate detection + merge UI with redirect tracking for re-import stability
+- LinkedIn/Instagram profile enrichment via RapidAPI
+- Stay-in-touch reminders with snooze and "contacted" logging
+- Contact timeline (messages, calls, calendar events, manual notes across all sources)
+- Profile picture pipeline (Apple Contacts, LinkedIn, image search)
+- Google Sheets integration for outreach tracking
+- Favorites, tags, archive, notes
+- Full-text search across contacts and messages
+- CLI lookup tool (`deno task lookup "name"`)
+
+## Setup
+
+1. Install [Deno](https://deno.com) and [Node.js](https://nodejs.org)
+2. Clone this repo
+3. Grant your terminal **Full Disk Access** (System Settings > Privacy & Security) for iMessage/WhatsApp/Call History
+4. Copy `server/.env.example` to `server/.env` and fill in API keys (optional, only needed for enrichment)
+5. Run:
+
+```bash
+npm install --prefix client    # Install client dependencies
+./dev.sh                       # Start server + client at http://localhost:5173
+deno task sync                 # Import iMessage, WhatsApp, calls, Apple Contacts + dedup
+```
+
+Your `crm.db` SQLite database will be created automatically on first sync.
+
+## Import Sources
+
+| Source | Script | Data imported | How to get the export |
+|--------|--------|---------------|----------------------|
+| iMessage | [`import-imessage.ts`](server/src/import-imessage.ts) | Messages, contacts | Automatic (reads `~/Library/Messages/chat.db`) |
+| WhatsApp | [`import-whatsapp.ts`](server/src/import-whatsapp.ts) | Messages | Automatic (reads WhatsApp Desktop local DB) |
+| Apple Contacts | [`import-contacts.ts`](server/src/import-contacts.ts) | Names, phones, emails, photos | Automatic (reads `~/Library/Application Support/AddressBook/`) |
+| Call History | [`import-call-history.ts`](server/src/import-call-history.ts) | Phone calls | Automatic (reads macOS `CallHistory.storedata`) |
+| LinkedIn | [`import-linkedin.ts`](server/src/import-linkedin.ts) | Connections, company, title | [Download your data](https://www.linkedin.com/mypreferences/d/download-my-data) > Connections CSV |
+| X/Twitter | [`import-x.ts`](server/src/import-x.ts) | Followers, following, bios | Any Chrome extension that exports followers/following as CSV |
+| X/Twitter DMs | [`import-twitter-dms.ts`](server/src/import-twitter-dms.ts) | DM history | [Twitter data export](https://x.com/settings/download_your_data) |
+| Instagram | [`import-instagram.ts`](server/src/import-instagram.ts) | DMs, followers | [Download your information](https://www.instagram.com/accounts/privacy_and_security/) |
+| Facebook | [`import-facebook.ts`](server/src/import-facebook.ts) | Messenger history | [Download your information](https://www.facebook.com/dyi) (JSON format) |
+| Google Calendar | [`import-google-calendar.ts`](server/src/import-google-calendar.ts) | Meeting attendees | [Google Takeout](https://takeout.google.com) > Calendar, or calendar.google.com > Settings > Export |
+| Google Contacts | [`import-google-contacts.ts`](server/src/import-google-contacts.ts) | Email addresses | [contacts.google.com](https://contacts.google.com) > Export > Google CSV |
+| Gmail | [`import-mbox-contacts.ts`](server/src/import-mbox-contacts.ts) | Email sender names | [Google Takeout](https://takeout.google.com) > Mail > mbox format |
+| Substack | [`import-substack.ts`](server/src/import-substack.ts) | Subscribers | Substack dashboard > Subscribers > Export |
+| LinkedIn enrichment | [`enrich-linkedin.ts`](server/src/enrich-linkedin.ts) | Full profile, experience, education | [Fresh LinkedIn Profile Data](https://rapidapi.com/freshdata-freshdata-default/api/fresh-linkedin-profile-data) (RapidAPI) |
+| Instagram enrichment | [`enrich-instagram.ts`](server/src/enrich-instagram.ts) | Bio, follower count | [Instagram Scraper 2025](https://rapidapi.com/social-starter/api/instagram-scraper-20251) (RapidAPI) |
+
+## Import Commands
+
+```bash
+# Core sync (run regularly to pick up new messages)
+deno task sync
+
+# Social platforms (run after downloading new exports)
+deno task import-linkedin         # Reads Connections.csv from exports/
+deno task import-x                # Reads Twitter CSV from exports/ or ~/Downloads
+deno task import-instagram        # Reads Instagram JSON export from exports/
+deno task import-facebook         # Reads Facebook JSON export from exports/
+
+# Google data (run after Google Takeout / calendar export)
+deno task import-google-contacts  # Reads ~/Downloads/google-contacts.csv
+deno task import-google-calendar  # Reads ICS files (unzip Takeout to /tmp/gcal_export/)
+deno task import-mbox             # Parses mbox From headers for email->name mapping
+
+# Enrichment (uses RapidAPI credits)
+deno task enrich-linkedin 100     # Enrich next 100 unenriched contacts
+```
+
+## Google Sheets Integration
+
+For outreach tracking via Google Sheets:
+
+1. Create an OAuth 2.0 Web Client in [Google Cloud Console](https://console.cloud.google.com/apis/credentials)
+2. Add `http://localhost:3000/oauth2callback` as an authorized redirect URI
+3. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `server/.env`
+4. Run `deno task run src/sheets-auth.ts` and complete the OAuth flow in your browser
+5. Token is saved to `.sheets-token.json` (gitignored) and auto-refreshes
+
+## Tips
+
+**Recommended import order** for best contact matching:
+1. `deno task sync` (iMessage, WhatsApp, Apple Contacts - gives you names + phone numbers)
+2. `import-linkedin` (adds email addresses + company/title)
+3. `import-x` (adds Twitter usernames, profile pics)
+4. `import-google-contacts` (links more email addresses to existing contacts)
+5. `import-mbox` (builds email->name map from Gmail, links calendar attendees)
+6. `import-google-calendar` (matches attendees by email - needs emails from steps 2-5)
+
+**The mbox trick**: Google Calendar ICS files often have email-only attendees (no display names). The mbox import parses `From:` headers from your Gmail export to build a 15k+ email->name mapping, which dramatically improves calendar attendee matching.
+
+**Browsing your data**: Install [DB Browser for SQLite](https://sqlitebrowser.org/) or [TablePlus](https://tableplus.com/) to browse `crm.db` directly. Useful for ad-hoc queries the web UI doesn't cover.
+
+**CLI lookup**: Quick contact info without opening the browser:
+```
+$ deno task lookup "Isaiah"
+
+=== Jane Smith (id: 42) ===
+LinkedIn: Software Engineer at Acme Corp
+Messages: 812 | First: 2022-03-15 | Last: 2026-04-10
+Phones: +15551234567
+Emails: jane@example.com
+
+Recent messages:
+  2026-04-10 [imessage] them: sounds good!
+  2026-04-09 [imessage] me: want to grab coffee this week?
+  2026-03-15 [calendar] me: 1:1 catch-up (+1 attendees)
+```
+
+## How It Works
+
+The CRM uses a merge-redirect system for re-import stability: when you merge two contacts, it records which source IDs (Apple Contacts ID, LinkedIn URL, X username, email) pointed to the merged-away contact, so the next time you re-import, the data flows to the correct contact automatically.
+
+Each import script is idempotent - you can re-run them safely. Messages are deduped by source-specific IDs (iMessage ROWID, etc.), and contacts are matched by email > phone > name.
+
+## Tech Stack
+
+- **Server**: Deno, SQLite (`@db/sqlite`), HTTP API
+- **Client**: React, Vite, Tailwind CSS, shadcn/ui (base-ui)
+- **Data**: Single SQLite file (`crm.db`), profile photos on disk
+
+## License
+
+MIT
