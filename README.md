@@ -42,7 +42,8 @@
 - Profile picture pipeline (Apple Contacts, LinkedIn, image search)
 - Google Sheets integration for outreach tracking
 - Favorites, tags, archive, notes
-- Full-text search across contacts and messages
+- Filter by platform, city, company or favorites; connect contacts to each other
+- Search contacts by name, with vim-style keyboard shortcuts and a light/dark theme
 - CLI lookup tool (`deno task lookup "name"`)
 
 ## Setup
@@ -78,28 +79,41 @@ Your `crm.db` SQLite database will be created automatically on first sync.
 | Google Contacts | [`import-google-contacts.ts`](server/src/import-google-contacts.ts) | Email addresses | [contacts.google.com](https://contacts.google.com) > Export > Google CSV |
 | Gmail | [`import-mbox-contacts.ts`](server/src/import-mbox-contacts.ts) | Email sender names | [Google Takeout](https://takeout.google.com) > Mail > mbox format |
 | Substack | [`import-substack.ts`](server/src/import-substack.ts) | Subscribers | Substack dashboard > Subscribers > Export |
+| Beeper | [`import-beeper-threads.ts`](server/src/import-beeper-threads.ts) | Thread links per contact | Automatic (reads the local Beeper Desktop API) |
 | LinkedIn enrichment | [`enrich-linkedin.ts`](server/src/enrich-linkedin.ts) | Full profile, experience, education | [Fresh LinkedIn Profile Data](https://rapidapi.com/freshdata-freshdata-default/api/fresh-linkedin-profile-data) (RapidAPI) |
 | Instagram enrichment | [`enrich-instagram.ts`](server/src/enrich-instagram.ts) | Bio, follower count | [Instagram Scraper 2025](https://rapidapi.com/social-starter/api/instagram-scraper-20251) (RapidAPI) |
 
 ## Import Commands
+
+Some importers have a named task; the rest are run through `deno task run`.
+Both forms are listed below, run them from the repo root.
 
 ```bash
 # Core sync (run regularly to pick up new messages)
 deno task sync
 
 # Social platforms (run after downloading new exports)
-deno task import-linkedin         # Reads Connections.csv from exports/
-deno task import-x                # Reads Twitter CSV from exports/ or ~/Downloads
-deno task import-instagram        # Reads Instagram JSON export from exports/
-deno task import-facebook         # Reads Facebook JSON export from exports/
+deno task import-linkedin                             # Connections.csv from exports/
+deno task --cwd server run src/import-x.ts            # Twitter CSV from exports/ or ~/Downloads
+deno task --cwd server run src/import-twitter-dms.ts  # DM history from the Twitter export
+deno task --cwd server run src/import-instagram.ts    # Instagram JSON export from exports/
+deno task --cwd server run src/import-facebook.ts     # Facebook JSON export from exports/
+deno task --cwd server run src/import-substack.ts     # Substack subscriber CSV
+deno task --cwd server run src/import-beeper-threads.ts
 
 # Google data (run after Google Takeout / calendar export)
-deno task import-google-contacts  # Reads ~/Downloads/google-contacts.csv
-deno task import-google-calendar  # Reads ICS files (unzip Takeout to /tmp/gcal_export/)
-deno task import-mbox             # Parses mbox From headers for email->name mapping
+deno task --cwd server run src/import-google-contacts.ts   # ~/Downloads/google-contacts.csv
+deno task --cwd server run src/import-google-calendar.ts   # ICS files (unzip Takeout to /tmp/gcal_export/)
+deno task import-mbox                                      # mbox From headers for email->name mapping
 
 # Enrichment (uses RapidAPI credits)
-deno task enrich-linkedin 100     # Enrich next 100 unenriched contacts
+deno task enrich-linkedin 100                          # Enrich next 100 unenriched contacts
+deno task --cwd server run src/enrich-instagram.ts     # Bio + follower counts
+
+# Cleanup passes
+deno task dedup                                        # Fuzzy duplicate detection
+deno task dedup-phones
+deno task --cwd server run src/normalize-locations.ts  # Collapse city spellings for the filter
 ```
 
 ## Google Sheets Integration
@@ -117,10 +131,10 @@ For outreach tracking via Google Sheets:
 **Recommended import order** for best contact matching:
 1. `deno task sync` (iMessage, WhatsApp, Apple Contacts - gives you names + phone numbers)
 2. `import-linkedin` (adds email addresses + company/title)
-3. `import-x` (adds Twitter usernames, profile pics)
-4. `import-google-contacts` (links more email addresses to existing contacts)
+3. `import-x.ts` (adds Twitter usernames, profile pics)
+4. `import-google-contacts.ts` (links more email addresses to existing contacts)
 5. `import-mbox` (builds email->name map from Gmail, links calendar attendees)
-6. `import-google-calendar` (matches attendees by email - needs emails from steps 2-5)
+6. `import-google-calendar.ts` (matches attendees by email - needs emails from steps 2-5)
 
 **The mbox trick**: Google Calendar ICS files often have email-only attendees (no display names). The mbox import parses `From:` headers from your Gmail export to build a 15k+ email->name mapping, which dramatically improves calendar attendee matching.
 
