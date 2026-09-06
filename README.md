@@ -1,12 +1,10 @@
 # Orbit
 
-A local-first personal relationship manager that imports your contacts from 15+ sources and helps you stay in touch. Designed to work alongside AI coding agents like [Claude Code](https://docs.anthropic.com/en/docs/claude-code). Built with Deno + React + SQLite. Open-source personal CRM.
+**An open-source, local-first personal CRM.** It auto-imports your contacts from **15+ sources**, merges the duplicates, and surfaces the people you have not spoken to in a while. Deno + React + SQLite, and everything stays on your machine in a single file.
 
-Unlike SaaS tools (Dex, Clay, Folk) that require manual data entry or subscriptions, Orbit auto-imports from every platform you actually use, merges duplicates, and gives you a unified view of all your relationships. Unlike [Monica](https://github.com/monicahq/monica) (the main open-source alternative), Orbit is CLI-first and focuses on automated import rather than manual logging.
-
-Because all your contacts live in a single SQLite database with rich metadata (messages, LinkedIn profiles, calendar events, tags), you can use an AI agent to query across your entire network. For example: *"Who in my contacts works in philanthropy or has funding capacity for a non-profit?"* or *"When did I last talk to anyone at a16z?"* - the agent can search your CRM, look up context, and even add people to a Google Sheet for outreach.
-
-All data stays on your machine in a single SQLite file.
+- **No manual data entry.** Unlike Dex, Clay and Folk, Orbit pulls from the platforms you already use instead of asking you to type people in.
+- **CLI-first.** Unlike [Monica](https://github.com/monicahq/monica), the main open-source alternative, it is built to sit alongside AI coding agents like Claude Code.
+- **Queryable by an agent.** One SQLite file holds messages, LinkedIn profiles, calendar events and tags, so you can ask *"Who in my contacts works in philanthropy?"* or *"When did I last talk to anyone at a16z?"* and have the agent search, pull context, and add people to a Google Sheet for outreach.
 
 ![Contacts](docs/contacts-grid.png)
 
