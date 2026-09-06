@@ -15,7 +15,8 @@
     "enrich-linkedin": "deno task run src/enrich-linkedin.ts",
     "test": "deno task run src/test-merge-redirect.ts",
     "lookup": "deno task run src/lookup.ts",
-    "import-mbox": "deno task run src/import-mbox-contacts.ts"
+    "import-mbox": "deno task run src/import-mbox-contacts.ts",
+    "seed-demo": "deno task run src/seed-demo.ts"
   },
   "imports": {
     "@db/sqlite": "jsr:@db/sqlite@0.12",

@@ -2,6 +2,8 @@ import { getDb } from "./db.ts";
 
 const db = getDb();
 const PORT = 3001;
+const PHOTOS_DIR = Deno.env.get("CRM_PHOTOS_DIR") ??
+  new URL("../../exports/contact-photos", import.meta.url).pathname;
 const SERPER_KEY = Deno.env.get("SERPER_API_KEY");
 
 
@@ -196,7 +198,7 @@ async function handler(req: Request): Promise<Response> {
       if (!res.ok) throw new Error(`Failed to fetch image: ${res.status}`);
       const data = new Uint8Array(await res.arrayBuffer());
 
-      const photosDir = new URL("../../exports/contact-photos", import.meta.url).pathname;
+      const photosDir = PHOTOS_DIR;
       const filename = `${id}.jpg`;
       Deno.writeFileSync(`${photosDir}/${filename}`, data);
 
@@ -790,7 +792,7 @@ ${contactDescriptions}`
         const picRes = await fetch(d.profile_image_url);
         if (picRes.ok) {
           const picData = new Uint8Array(await picRes.arrayBuffer());
-          const photosDir = new URL("../../exports/contact-photos", import.meta.url).pathname;
+          const photosDir = PHOTOS_DIR;
           const filename = `${id}.jpg`;
           Deno.writeFileSync(`${photosDir}/${filename}`, picData);
           profilePicUrl = `/photos/${filename}`;
@@ -814,7 +816,7 @@ ${contactDescriptions}`
   // GET /photos/:filename - serve contact photos
   if (path.startsWith("/photos/")) {
     const filename = decodeURIComponent(path.slice(8));
-    const photoPath = new URL(`../../exports/contact-photos/${filename}`, import.meta.url).pathname;
+    const photoPath = `${PHOTOS_DIR}/${filename}`;
     try {
       const data = Deno.readFileSync(photoPath);
       return new Response(data, {

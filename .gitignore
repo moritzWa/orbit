@@ -5,3 +5,4 @@ node_modules/
 *.db-wal
 *.db-shm
 crm.db.backup
+server/tools/facecrop

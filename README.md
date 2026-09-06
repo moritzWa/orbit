@@ -8,6 +8,32 @@ Because all your contacts live in a single SQLite database with rich metadata (m
 
 All data stays on your machine in a single SQLite file.
 
+![Contacts](docs/contacts-grid.png)
+
+<details>
+<summary>More screenshots</summary>
+
+**Dark mode:**
+
+![Contacts, dark mode](docs/contacts-grid-dark.png)
+
+**Home** - who's overdue, with a one-click "contacted" log:
+
+![Home](docs/home.png)
+
+**Contact detail** - headline, tags, connections, and the merged message history across every platform:
+
+![Contact detail](docs/contact-detail.png)
+
+**List view:**
+
+![Contacts, list view](docs/contacts-list.png)
+
+</details>
+
+> The screenshots show a demo database of 72 public figures, not anyone's real
+> contacts. See [Demo data](#demo-data) to regenerate it.
+
 ## Features
 
 - Auto-import from 15+ sources (see table below)
@@ -129,6 +155,30 @@ Each import script is idempotent - you can re-run them safely. Messages are dedu
 - **Server**: Deno, SQLite (`@db/sqlite`), HTTP API
 - **Client**: React, Vite, Tailwind CSS, shadcn/ui (base-ui)
 - **Data**: Single SQLite file (`crm.db`), profile photos on disk
+
+## Demo data
+
+The screenshots above run against a throwaway database of 72 public figures
+from tech, film, music, sport and writing, with profile pictures pulled from
+Wikipedia. It never touches your real `crm.db`.
+
+```bash
+CRM_DB_PATH=$PWD/exports/demo.db CRM_PHOTOS_DIR=$PWD/exports/demo-photos \
+  deno task --cwd server seed-demo     # 72 contacts + photos (cached after the first run)
+
+CRM_DB_PATH=$PWD/exports/demo.db CRM_PHOTOS_DIR=$PWD/exports/demo-photos \
+  deno task --cwd server start         # then start the client against it
+```
+
+`CRM_DB_PATH` and `CRM_PHOTOS_DIR` override the defaults (`crm.db` and
+`exports/contact-photos/`) for any script, so nothing else needs changing. Both
+demo files live under `exports/`, which is gitignored.
+
+Wikipedia's lead images are mostly conference and red-carpet shots, so each one
+is reframed into a head-and-shoulders avatar by
+[`server/tools/facecrop.swift`](server/tools/facecrop.swift), which finds the
+largest face with Apple's Vision framework. It is built on first run and
+skipped if Swift is unavailable, in which case the uncropped image is used.
 
 ## License
 

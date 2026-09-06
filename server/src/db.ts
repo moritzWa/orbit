@@ -1,6 +1,7 @@
 import { Database } from "@db/sqlite";
 
-const DB_PATH = new URL("../../crm.db", import.meta.url).pathname;
+const DB_PATH = Deno.env.get("CRM_DB_PATH") ??
+  new URL("../../crm.db", import.meta.url).pathname;
 
 export function getDb(): Database {
   const db = new Database(DB_PATH);
