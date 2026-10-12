@@ -4,6 +4,7 @@
     "jsr:@db/sqlite@0.12": "0.12.0",
     "jsr:@denosaurs/plug@1": "1.1.0",
     "jsr:@std/assert@0.217": "0.217.0",
+    "jsr:@std/bytes@^1.0.6": "1.0.6",
     "jsr:@std/csv@*": "1.0.6",
     "jsr:@std/dotenv@*": "0.225.6",
     "jsr:@std/encoding@1": "1.0.10",
@@ -36,6 +37,9 @@
     },
     "@std/assert@0.217.0": {
       "integrity": "c98e279362ca6982d5285c3b89517b757c1e3477ee9f14eb2fdf80a45aaa9642"
+    },
+    "@std/bytes@1.0.6": {
+      "integrity": "f6ac6adbd8ccd99314045f5703e23af0a68d7f7e58364b47d2c7f408aeb5820a"
     },
     "@std/csv@1.0.6": {
       "integrity": "52ef0e62799a0028d278fa04762f17f9bd263fad9a8e7f98c14fbd371d62d9fd",
@@ -75,7 +79,10 @@
       ]
     },
     "@std/streams@1.0.17": {
-      "integrity": "7859f3d9deed83cf4b41f19223d4a67661b3d3819e9fc117698f493bf5992140"
+      "integrity": "7859f3d9deed83cf4b41f19223d4a67661b3d3819e9fc117698f493bf5992140",
+      "dependencies": [
+        "jsr:@std/bytes"
+      ]
     }
   },
   "npm": {

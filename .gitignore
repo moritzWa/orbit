@@ -5,4 +5,5 @@ node_modules/
 *.db-wal
 *.db-shm
 crm.db.backup
+__pycache__/
 server/tools/facecrop

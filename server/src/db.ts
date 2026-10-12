@@ -3,8 +3,8 @@ import { Database } from "@db/sqlite";
 const DB_PATH = Deno.env.get("CRM_DB_PATH") ??
   new URL("../../crm.db", import.meta.url).pathname;
 
-export function getDb(): Database {
-  const db = new Database(DB_PATH);
+export function getDb(path = DB_PATH): Database {
+  const db = new Database(path);
   db.exec("PRAGMA journal_mode=WAL");
   db.exec("PRAGMA foreign_keys=ON");
 
@@ -15,6 +15,7 @@ export function getDb(): Database {
       last_name TEXT,
       organization TEXT,
       display_name TEXT,
+      archived INTEGER DEFAULT 0,
       apple_contacts_id INTEGER,
       linkedin_url TEXT,
       linkedin_headline TEXT,
@@ -29,6 +30,11 @@ export function getDb(): Database {
       updated_at TEXT DEFAULT (datetime('now'))
     )
   `);
+
+  const contactColumns = db.prepare("PRAGMA table_info(contacts)").all() as Array<{ name: string }>;
+  if (!contactColumns.some((column) => column.name === "archived")) {
+    db.exec("ALTER TABLE contacts ADD COLUMN archived INTEGER DEFAULT 0");
+  }
 
   db.exec(`
     CREATE TABLE IF NOT EXISTS contact_phones (
@@ -59,7 +65,20 @@ export function getDb(): Database {
       text TEXT,
       is_from_me INTEGER,
       date TEXT NOT NULL,
+      source TEXT DEFAULT 'imessage',
       created_at TEXT DEFAULT (datetime('now'))
+    )
+  `);
+
+  const messageColumns = db.prepare("PRAGMA table_info(messages)").all() as Array<{ name: string }>;
+  if (!messageColumns.some((column) => column.name === "source")) {
+    db.exec("ALTER TABLE messages ADD COLUMN source TEXT DEFAULT 'imessage'");
+  }
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS linkedin_message_imports (
+      fingerprint TEXT PRIMARY KEY,
+      message_id INTEGER NOT NULL REFERENCES messages(id)
     )
   `);
 

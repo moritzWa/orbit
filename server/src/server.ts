@@ -359,7 +359,7 @@ async function handler(req: Request): Promise<Response> {
 
   // GET /api/sync-status
   if (path === "/api/sync-status" && req.method === "GET") {
-    const sources = ["imessage", "whatsapp", "apple_contacts", "linkedin", "call_history", "x", "twitter_dms", "instagram", "instagram_enrich", "facebook", "substack"];
+    const sources = ["imessage", "whatsapp", "apple_contacts", "linkedin", "linkedin_messages", "gmail", "call_history", "x", "twitter_dms", "instagram", "instagram_enrich", "facebook", "substack"];
     const status = sources.map((source) => {
       const row = db.prepare("SELECT ran_at, count FROM import_log WHERE source = ? ORDER BY ran_at DESC LIMIT 1").get(source) as { ran_at: string; count: number } | undefined;
       return { source, last_ran: row?.ran_at ?? null, last_count: row?.count ?? 0 };

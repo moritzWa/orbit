@@ -71,6 +71,7 @@ Your `crm.db` SQLite database will be created automatically on first sync.
 | Apple Contacts | [`import-contacts.ts`](server/src/import-contacts.ts) | Names, phones, emails, photos | Automatic (reads `~/Library/Application Support/AddressBook/`) |
 | Call History | [`import-call-history.ts`](server/src/import-call-history.ts) | Phone calls | Automatic (reads macOS `CallHistory.storedata`) |
 | LinkedIn | [`import-linkedin.ts`](server/src/import-linkedin.ts) | Connections, company, title | [Download your data](https://www.linkedin.com/mypreferences/d/download-my-data) > Connections CSV |
+| LinkedIn DMs | [`import-linkedin-messages.ts`](server/src/import-linkedin-messages.ts) | Direct-message history | LinkedIn archive > `messages.csv`; repeat-safe import |
 | X/Twitter | [`import-x.ts`](server/src/import-x.ts) | Followers, following, bios | Any Chrome extension that exports followers/following as CSV |
 | X/Twitter DMs | [`import-twitter-dms.ts`](server/src/import-twitter-dms.ts) | DM history | [Twitter data export](https://x.com/settings/download_your_data) |
 | Instagram | [`import-instagram.ts`](server/src/import-instagram.ts) | DMs, followers | [Download your information](https://www.instagram.com/accounts/privacy_and_security/) |
@@ -78,6 +79,7 @@ Your `crm.db` SQLite database will be created automatically on first sync.
 | Google Calendar | [`import-google-calendar.ts`](server/src/import-google-calendar.ts) | Meeting attendees | [Google Takeout](https://takeout.google.com) > Calendar, or calendar.google.com > Settings > Export |
 | Google Contacts | [`import-google-contacts.ts`](server/src/import-google-contacts.ts) | Email addresses | [contacts.google.com](https://contacts.google.com) > Export > Google CSV |
 | Gmail | [`import-mbox-contacts.ts`](server/src/import-mbox-contacts.ts) | Email sender names | [Google Takeout](https://takeout.google.com) > Mail > mbox format |
+| Gmail history | [`import-gmail.py`](server/src/import-gmail.py) | Subjects, dates and direction for existing contacts | Read-only Gmail API; incremental sync, no new contacts |
 | Substack | [`import-substack.ts`](server/src/import-substack.ts) | Subscribers | Substack dashboard > Subscribers > Export |
 | Beeper | [`import-beeper-threads.ts`](server/src/import-beeper-threads.ts) | Thread links per contact | Automatic (reads the local Beeper Desktop API) |
 | LinkedIn enrichment | [`enrich-linkedin.ts`](server/src/enrich-linkedin.ts) | Full profile, experience, education | [Fresh LinkedIn Profile Data](https://rapidapi.com/freshdata-freshdata-default/api/fresh-linkedin-profile-data) (RapidAPI) |
@@ -86,6 +88,8 @@ Your `crm.db` SQLite database will be created automatically on first sync.
 ## Import Commands
 
 Some importers have a named task; the rest are run through `deno task run`.
+
+[Gmail and LinkedIn message import setup and matching rules](docs/email-and-linkedin-imports.md).
 Both forms are listed below, run them from the repo root.
 
 ```bash
