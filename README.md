@@ -6,10 +6,20 @@
 - **CLI-first.** Unlike [Monica](https://github.com/monicahq/monica), the main open-source alternative, it is built to sit alongside AI coding agents like Claude Code.
 - **Queryable by an agent.** One SQLite file holds messages, LinkedIn profiles, calendar events and tags, so you can ask *"Who in my contacts works in philanthropy?"* or *"When did I last talk to anyone at a16z?"* and have the agent search, pull context, and add people to a Google Sheet for outreach.
 
-![Contacts](docs/contacts-grid.png)
+### Keyboard-first catch-ups
+
+https://github.com/user-attachments/assets/1ffb1817-d808-4017-915c-c6dc2ef21f20
+
+Watch the Home walkthrough: select contacts, log a connection, queue a draft and
+snooze reminders. The recording uses public-figure demo contacts and simulated
+messaging; no messages are sent.
 
 <details>
 <summary>More screenshots</summary>
+
+**Contacts:**
+
+![Contacts](docs/contacts-grid.png)
 
 **Dark mode:**
 
