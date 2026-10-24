@@ -8,6 +8,8 @@
 
 ### Keyboard-first catch-ups
 
+https://github.com/user-attachments/assets/1ffb1817-d808-4017-915c-c6dc2ef21f20
+
 Watch the Home walkthrough: select contacts, log a connection, queue a draft and
 snooze reminders. The recording uses public-figure demo contacts and simulated
 messaging; no messages are sent.
